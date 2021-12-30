@@ -1,17 +1,11 @@
 <template>
   <Loading v-if="!isLoading && !movieSelected" />
-  <section 
-    v-else
-    :key="$route.params.page">
-    <div
-      v-if="movies.length !== 0"
-      class="movies__header">
+  <section v-else :key="$route.params.page">
+    <div v-if="movies.length !== 0" class="movies__header">
       <h1>"{{ movieTitle }}"에 대한 검색 결과</h1>
       <h1>총 {{ totalResults }}개의 검색 결과가 있습니다.</h1>
     </div>
-    <div
-      v-else
-      class="noResult">
+    <div v-else class="noResult">
       <h1>검색 결과가 없습니다!</h1>
     </div>
     <ul class="movies__contents">
@@ -19,86 +13,88 @@
         v-for="movie in movies"
         :key="movie.imdbID"
         class="movie-list"
-        @click="readMovieItem(movie.imdbID); movieSelected=true">
+        @click="
+          readMovieItem(movie.imdbID);
+          movieSelected = true;
+        "
+      >
         <img
           :src="movie.Poster"
           onerror="this.src='https://cloud.filmfed.com/defaults/movie-poster/l_movie_poster_default.png'"
           alt="moviePoster"
-          class="movie-poster" />
+          class="movie-poster"
+        />
         <div class="movie-info">
           <span class="title">{{ movie.Title }}</span>
           <span class="year">{{ movie.Year }}</span>
-        </div> 
+        </div>
       </li>
     </ul>
     <div class="page__footer">
       <Pagenation :page="page" />
     </div>
   </section>
-  <MovieItemViewer
-    v-if="movieSelected"
-    @closeViewer="movieSelected=false" />
+  <MovieItemViewer v-if="movieSelected" @closeViewer="movieSelected = false" />
 </template>
 
 <script>
-import MovieItemViewer from '~/components/MovieItemViewer'
-import Loading from '~/components/Loading'
-import Pagenation from '~/components/Pagenation'
+import MovieItemViewer from '~/components/MovieItemViewer';
+import Loading from '~/components/Loading';
+import Pagenation from '~/components/Pagenation';
 export default {
-  components:{
+  components: {
     MovieItemViewer,
     Loading,
-    Pagenation
+    Pagenation,
   },
-  data(){
+  data() {
     return {
-        movieSelected: false
-      }
+      movieSelected: false,
+    };
   },
   computed: {
-    movies(){
-      return this.$store.state.movieList.movieList
+    movies() {
+      return this.$store.state.movieList.movieList;
     },
-    totalResults(){
-      return this.$store.state.movieList.totalResults
+    totalResults() {
+      return this.$store.state.movieList.totalResults;
     },
-    movieTitle(){
-      return this.$store.state.movieList.searchTitle
+    movieTitle() {
+      return this.$store.state.movieList.searchTitle;
     },
-    isLoading(){
-      return this.$store.state.movieList.isLoading
+    isLoading() {
+      return this.$store.state.movieList.isLoading;
     },
-    page(){
-      return this.$store.state.movieList.page
-    }
+    page() {
+      return this.$store.state.movieList.page;
+    },
   },
   watch: {
-    $route(){
-          this.$store.dispatch('movieList/readMovieList', {
-          searchTitle: this.$route.params.title,
-          page: this.$route.params.page,
-        })
-      }
+    $route() {
+      this.$store.dispatch('movieList/readMovieList', {
+        searchTitle: this.$route.params.title,
+        page: this.$route.params.page,
+      });
+    },
   },
   created() {
-        this.$store.dispatch('movieList/readMovieList', {
-        searchTitle: this.$route.params.title,
-        page: this.$route.params.page
-      })
+    this.$store.dispatch('movieList/readMovieList', {
+      searchTitle: this.$route.params.title,
+      page: this.$route.params.page,
+    });
   },
   methods: {
-    readMovieItem(movieId){
+    readMovieItem(movieId) {
       this.$store.dispatch('movieList/readMovieItem', {
-        searchId : movieId,
-      })
-    }
-  }  
-}
+        searchId: movieId,
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-
-section{
+section {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -112,37 +108,48 @@ section{
     display: flex;
     flex-wrap: wrap;
     padding: 20px 10px;
+    justify-content: center;
     .movie-list {
+      display: flex;
+      padding: 20px 10px;
+      flex-direction: column;
+      flex-grow: 0;
+      max-width: 400px;
+      align-items: center;
+      cursor: pointer;
+      &:hover {
+        transform: scale(1.1);
+        opacity: 0.6;
+      }
+      img {
+        width: 250px;
+        height: 400px;
+      }
+      .movie-poster {
+        border-radius: 5px;
+        object-fit: cover;
+      }
+
+      .movie-info {
         display: flex;
-        padding: 20px 10px;
         flex-direction: column;
-        flex-grow: 1;
-        max-width: 500px;
-        &:hover {
-           transform: scale(1.1);
-           opacity: .6;
+        width: 200px;
+        padding: 15px 10px;
+        .title {
+          font-size: 20px;
+          font-weight: 500;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          text-align: center;
         }
-
-        .movie-poster {
-          border-radius: 5px;
-          object-fit: cover;
+        .year {
+          font-size: 15px;
+          font-weight: 400;
+          text-align: center;
         }
-
-        .movie-info {
-          display: flex;
-          justify-content: space-between;
-          padding: 15px 10px;
-          .title {
-            font-size: 30px;
-            font-weight: 500;
-          }
-          .year {
-             font-size: 20px;
-            font-weight: 400;
-          }
-        }
+      }
     }
   }
 }
-  
 </style>
